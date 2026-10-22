@@ -311,3 +311,9 @@ $$\text{Final Risk Score} = \max\Big(0.0, \min\big(100.0, \text{round}(R_{\text{
 - [Risk Engine Heuristics Specification](file:///c:/Users/Muzamil/Desktop/Information%20security%20project/security-incident-dashboard/docs/risk_algorithm.md)
 - [Automated Testing & Results Record](file:///c:/Users/Muzamil/Desktop/Information%20security%20project/security-incident-dashboard/docs/testing.md)
 - [University Viva Examination Defense Guide](file:///c:/Users/Muzamil/Desktop/Information%20security%20project/security-incident-dashboard/docs/viva_guide.md)
+
+---
+
+## Author
+**Muzamil Ahmad**
+
