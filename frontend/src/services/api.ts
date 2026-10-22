@@ -1,4 +1,4 @@
-const API_BASE = '/api';
+const API_BASE = (import.meta.env.VITE_API_URL as string) || '/api';
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem('soc_access_token');
@@ -156,5 +156,49 @@ export const api = {
   // System
   getSystemHealth: async () => {
     return request<any>('/system/health');
+  },
+
+  // ML Text Classifier
+  classifyText: async (text: string, analystNotes?: string, reviewer?: string) => {
+    return request<any>('/ml/classify', {
+      method: 'POST',
+      body: JSON.stringify({
+        text,
+        analyst_notes: analystNotes || '',
+        reviewer: reviewer || 'SOC Analyst',
+      }),
+    });
+  },
+
+  listMLRecords: async (params: Record<string, any> = {}) => {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, val]) => {
+      if (val !== undefined && val !== null && val !== '' && val !== 'All') {
+        query.append(key, String(val));
+      }
+    });
+    return request<any>(`/ml/records?${query.toString()}`);
+  },
+
+  getMLRecord: async (recordId: string) => {
+    return request<any>(`/ml/records/${recordId}`);
+  },
+
+  updateMLRecordStatus: async (
+    recordId: string,
+    data: { review_status?: string; analyst_confirmed_status?: string; analyst_notes?: string; reviewer?: string }
+  ) => {
+    return request<any>(`/ml/records/${recordId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  getMLMetrics: async () => {
+    return request<any>('/ml/metrics');
+  },
+
+  getMLSamples: async () => {
+    return request<any[]>('/ml/samples');
   },
 };

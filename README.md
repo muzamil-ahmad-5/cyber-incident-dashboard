@@ -6,7 +6,7 @@ An Academic Security Operations Center (SOC) Incident Monitoring, Risk Prioritiz
 [![React](https://img.shields.io/badge/Frontend-React_19_TypeScript-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind_CSS_v4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![SQLite](https://img.shields.io/badge/Database-SQLite_Persistent-003B57?logo=sqlite&logoColor=white)](https://sqlite.org/)
-[![Pytest](https://img.shields.io/badge/Tests-8%2F8_Passed-success)](https://docs.pytest.org/)
+[![Pytest](https://img.shields.io/badge/Tests-16%2F16_Passed-success)](https://docs.pytest.org/)
 
 ---
 
@@ -156,8 +156,40 @@ npm run dev
 
 Open your browser to:
 * **Web Application (Laptop / Desktop)**: `http://localhost:5173`
-* **Web Application (Mobile Phone on same Wi-Fi)**: `http://10.60.14.133:5173`
+* **Web Application (Same Wi-Fi / Local LAN)**: `http://10.60.14.133:5173`
+* **Remote Access (ANY Wi-Fi / Mobile Data)**: Run `share_online_public.bat`
 * **Interactive Swagger API Docs**: `http://127.0.0.1:8000/docs`
+
+---
+
+### Step 3: Remote Access (Different Wi-Fi / Mobile Data)
+
+To open the dashboard on a phone, tablet, or another computer connected to a **different Wi-Fi** or mobile data network:
+1. Double-click `share_online_public.bat` in the project root.
+2. An encrypted public HTTPS tunnel will be created (e.g., `https://your-tunnel.loca.lt`).
+3. Enter the one-time tunnel password displayed in the terminal.
+
+---
+
+### Step 4: Direct Hosting on Vercel
+
+The project includes pre-configured `vercel.json` files for zero-config Vercel deployment:
+
+1. **Push your code to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Configure Vercel deployment & cyber touch"
+   git push origin main
+   ```
+2. **Import to Vercel**:
+   * Go to [vercel.com](https://vercel.com) and log in.
+   * Click **"Add New"** > **"Project"** and select your GitHub repository.
+   * **Framework Preset**: Vite (detected automatically).
+   * **Root Directory**: Select `frontend` (or leave default root).
+   * Click **"Deploy"**.
+3. **Connect Backend API** *(Optional for remote backend)*:
+   * In Vercel Project Settings > **Environment Variables**, add:
+     * `VITE_API_URL`: Your deployed backend URL (e.g., on Render, Railway, or tunnel).
 
 ---
 
@@ -185,16 +217,53 @@ cd backend
 
 Expected result:
 ```text
-tests/test_backend.py::test_password_hashing PASSED                      [ 12%]
-tests/test_backend.py::test_jwt_token_generation_and_decoding PASSED     [ 25%]
-tests/test_backend.py::test_risk_prioritization_engine_boundaries PASSED [ 37%]
-tests/test_backend.py::test_csv_injection_sanitization PASSED            [ 50%]
-tests/test_backend.py::test_incident_creation_and_listing PASSED         [ 62%]
-tests/test_backend.py::test_incident_invalid_status_transition PASSED    [ 75%]
-tests/test_backend.py::test_analytics_endpoint PASSED                    [ 87%]
-tests/test_backend.py::test_audit_logging PASSED                         [100%]
-======================== 8 passed in 12.32s ========================
+tests/test_backend.py::test_password_hashing PASSED                      [  6%]
+tests/test_backend.py::test_jwt_token_generation_and_decoding PASSED     [ 12%]
+tests/test_backend.py::test_risk_prioritization_engine_boundaries PASSED [ 18%]
+tests/test_backend.py::test_csv_injection_sanitization PASSED            [ 25%]
+tests/test_backend.py::test_incident_creation_and_listing PASSED         [ 31%]
+tests/test_backend.py::test_incident_invalid_status_transition PASSED    [ 37%]
+tests/test_backend.py::test_analytics_endpoint PASSED                    [ 43%]
+tests/test_backend.py::test_audit_logging PASSED                         [ 50%]
+tests/test_ml_classifier.py::test_ml_service_prediction PASSED           [ 56%]
+tests/test_ml_classifier.py::test_ml_service_fallback_guidance PASSED   [ 62%]
+tests/test_ml_classifier.py::test_classify_endpoint_creates_record PASSED [ 68%]
+tests/test_ml_classifier.py::test_list_classification_records PASSED    [ 75%]
+tests/test_ml_classifier.py::test_update_classification_status_and_confirmed_state PASSED [ 81%]
+tests/test_ml_classifier.py::test_invalid_status_rejection PASSED        [ 87%]
+tests/test_ml_classifier.py::test_metrics_endpoint PASSED                [ 93%]
+tests/test_ml_classifier.py::test_samples_endpoint PASSED                [100%]
+======================== 16 passed in 6.98s ========================
 ```
+
+---
+
+## 6.5. Machine Learning Text Classifier & Intrusion Detection Tier
+
+### Tier 1: Baseline Cybersecurity Text Entity Classifier
+* **Dataset**: `security_incident_model_bundle/cybersecurity_entities.csv`
+* **Features**: TF-IDF N-grams (1, 2) with sublinear TF scaling
+* **Model**: Linear Support Vector Classifier (`LinearSVC`, balanced class weights)
+* **Target Classes (14)**: `malware`, `vulnerability`, `threat-actor`, `attack-pattern`, `tools`, `filepath`, `hash`, `identity`, `infrastucture`, `location`, `time`, `software`, `campaign`, `url`.
+* **Accuracy**: 39.74% on stratified test holdout (311 train / 78 test).
+* **Curated Prevention Playbooks**: Rule-based knowledge base generating step-by-step mitigation and hardening guidance for all 14 entity classes, with a structured fallback to *"Manual investigation required"* for unknown inputs.
+* **Analyst Verification Workflow**: Strictly isolates ML predictions from analyst-confirmed ground-truth states (`Unconfirmed`, `Confirmed Incident`, `Benign Activity`, `Inconclusive`) with review tracking (`New`, `Under Investigation`, `Resolved`, `False Positive`).
+
+> [!CAUTION]
+> **CRITICAL DATA & SAFETY LIMITATION**:
+> `cybersecurity_entities.csv` labels text entity mentions, **not** benign-versus-malicious network activity. It is **not** an attack detector. Automated destructive actions (blocking IP addresses, disabling accounts, or isolating hosts) are explicitly prohibited. All submissions require human analyst review.
+
+### Tier 2: Next-Phase CICIDS2017 Network Flow Intrusion Detection Pipeline
+* **Script**: `scripts/train_network_intrusion_cicids2017.py`
+* **Documentation**: `docs/cicids2017_pipeline_guide.md`
+* **Features**: 78 bidirectional network flow telemetry metrics extracted via CICFlowMeter (packet inter-arrival times, payload variance, TCP flags).
+* **Target Ground Truth**: True `BENIGN` network traffic vs simulated live attacks (`DDoS`, `PortScan`, `FTP-Patator`, `SSH-Patator`, `Bot`).
+* **Verification Run**:
+  ```powershell
+  .\backend\venv\Scripts\python.exe .\scripts\train_network_intrusion_cicids2017.py --binary
+  ```
+
+---
 
 To verify the frontend TypeScript build:
 ```powershell

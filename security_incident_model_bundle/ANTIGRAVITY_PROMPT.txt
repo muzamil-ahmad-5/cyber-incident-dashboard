@@ -1,0 +1,18 @@
+I am building a semester project called “AI-Based Security Incident Detection and Prevention System.” Inspect the files in this project folder before making changes.
+
+Use cybersecurity_entities.csv and train_model.py as the initial ML text-classification component. The script uses the `text` column and `label_1` target and saves artifacts to `artifacts/`. Add a clear UI/API integration for this classifier only if needed.
+
+CRITICAL DATA LIMITATION: label_1 represents an entity category, not a benign-versus-malicious incident label. Do not claim this model detects attacks or confirms real incidents. Do not use its predictions to automatically block IPs, disable accounts, or isolate devices.
+
+Build the dashboard so that it:
+1. Accepts a text description and calls the trained classifier from a Python backend.
+2. Displays the predicted entity category with a clear note that this is text classification, not verified incident detection.
+3. Shows prevention guidance from a curated rule-based knowledge base, with a fallback to “manual investigation required” for unknown categories.
+4. Stores submitted records, prediction, timestamp, review status, and analyst notes in SQLite.
+5. Provides New / Under Investigation / Resolved / False Positive statuses.
+6. Separates model predictions from analyst-confirmed incident status.
+7. Includes setup instructions and safe sample records.
+
+Keep the existing frontend style if one already exists. Do not invent model accuracy, claim real-time monitoring unless implemented, or add automatic destructive response actions.
+
+For the next phase, prepare a separate training pipeline for a properly labeled network intrusion dataset such as CICIDS2017. Inspect its actual columns and label definitions first; do not assume the current CSV can train an attack detector.

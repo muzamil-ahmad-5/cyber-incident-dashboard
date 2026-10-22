@@ -18,5 +18,6 @@ echo ========================================================
 echo Applications launched successfully!
 echo Backend API Docs: http://127.0.0.1:8000/docs
 echo Frontend (Laptop): http://localhost:5173
-echo Frontend (Mobile): http://10.60.14.133:5173 (Same Wi-Fi)
+echo Frontend (Same Wi-Fi): http://10.60.14.133:5173
+echo Frontend (Different Wi-Fi): Run 'share_online_public.bat'
 echo ========================================================

@@ -17,7 +17,8 @@ import {
   Info,
   History,
   RefreshCw,
-  Edit3
+  Edit3,
+  BrainCircuit
 } from 'lucide-react';
 import { api } from '../services/api';
 import { Incident, AuditLog } from '../types/incident';
@@ -181,6 +182,14 @@ export const Investigation: React.FC = () => {
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>Transition Status</span>
+                </button>
+                <button
+                  onClick={() => navigate('/ai-classifier')}
+                  className="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold border border-cyan-500/30 transition-all whitespace-nowrap flex items-center gap-1.5"
+                  title="Classify alert description using AI Entity Model"
+                >
+                  <BrainCircuit className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>AI Classifier Hub</span>
                 </button>
                 <button
                   onClick={() => setEditModalOpen(true)}

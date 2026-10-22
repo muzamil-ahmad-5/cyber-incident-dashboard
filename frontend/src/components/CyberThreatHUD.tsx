@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Radio, Terminal, AlertTriangle, Activity, Wifi, Cpu, Eye, Zap, RefreshCw } from 'lucide-react';
+import { Shield, Radio, Terminal, AlertTriangle, Activity, Wifi, Cpu, Eye, Zap, RefreshCw, Crosshair, Lock } from 'lucide-react';
+import { cyberAudio } from '../services/cyberAudio';
 
 interface TelemetryLog {
   id: string;
@@ -20,6 +21,49 @@ export const CyberThreatHUD: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'map' | 'radar' | 'telemetry'>('map');
   const [selectedNode, setSelectedNode] = useState<string | null>('prod-db-01');
+  const [defenseStatus, setDefenseStatus] = useState<string>('PERIMETER INTERCEPT READY');
+  const [isSweeping, setIsSweeping] = useState(false);
+
+  const handleTabChange = (tab: 'map' | 'radar' | 'telemetry') => {
+    setActiveTab(tab);
+    if (tab === 'radar') {
+      cyberAudio.playSonar();
+    } else if (tab === 'telemetry') {
+      cyberAudio.playScan();
+    } else {
+      cyberAudio.playClick();
+    }
+  };
+
+  const handleSelectNode = (node: string) => {
+    setSelectedNode(node);
+    cyberAudio.playClick();
+  };
+
+  const handleTriggerSweep = () => {
+    setIsSweeping(true);
+    cyberAudio.playScan();
+    setTimeout(() => {
+      cyberAudio.playSuccess();
+      setIsSweeping(false);
+      setDefenseStatus('SWEEP COMPLETE: 0 NEW THREATS DETECTED');
+    }, 1200);
+  };
+
+  const handleIsolateSelected = () => {
+    cyberAudio.playAlert();
+    setDefenseStatus(`QUARANTINE ENFORCED: ${selectedNode} ISOLATED`);
+    setLogs(prev => [
+      {
+        id: Math.random().toString(),
+        timestamp: new Date().toTimeString().slice(0, 8),
+        level: 'DEFENSE',
+        message: `VLAN isolation enforced for asset ${selectedNode}`,
+        source: 'TACTICAL_HUD',
+      },
+      ...prev.slice(0, 7),
+    ]);
+  };
 
   // Stream live simulated telemetry logs every 4 seconds
   useEffect(() => {
@@ -80,22 +124,22 @@ export const CyberThreatHUD: React.FC = () => {
         {/* View Switcher Tabs */}
         <div className="flex items-center bg-slate-900/90 rounded-lg p-1 border border-slate-800 font-mono text-xs">
           <button
-            onClick={() => setActiveTab('map')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition ${activeTab === 'map' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200'}`}
+            onClick={() => handleTabChange('map')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition ${activeTab === 'map' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.2)]' : 'text-slate-400 hover:text-slate-200'}`}
           >
             <Activity className="w-3.5 h-3.5 text-cyan-400" />
             Attack Topology
           </button>
           <button
-            onClick={() => setActiveTab('radar')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition ${activeTab === 'radar' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200'}`}
+            onClick={() => handleTabChange('radar')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition ${activeTab === 'radar' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.2)]' : 'text-slate-400 hover:text-slate-200'}`}
           >
             <Radio className="w-3.5 h-3.5 text-emerald-400" />
             Sonar Radar
           </button>
           <button
-            onClick={() => setActiveTab('telemetry')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition ${activeTab === 'telemetry' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200'}`}
+            onClick={() => handleTabChange('telemetry')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition ${activeTab === 'telemetry' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.2)]' : 'text-slate-400 hover:text-slate-200'}`}
           >
             <Terminal className="w-3.5 h-3.5 text-yellow-400" />
             Live Stream
@@ -181,7 +225,7 @@ export const CyberThreatHUD: React.FC = () => {
                 <g 
                   transform="translate(580, 30)" 
                   className="cursor-pointer"
-                  onClick={() => setSelectedNode('prod-auth-vault-01')}
+                  onClick={() => handleSelectNode('prod-auth-vault-01')}
                 >
                   <rect width="130" height="40" rx="4" fill="#0B1528" stroke={selectedNode === 'prod-auth-vault-01' ? '#22D3EE' : '#1E293B'} strokeWidth="1.5" />
                   <circle cx="15" cy="20" r="4" fill="#22D3EE" />
@@ -192,7 +236,7 @@ export const CyberThreatHUD: React.FC = () => {
                 <g 
                   transform="translate(580, 100)" 
                   className="cursor-pointer"
-                  onClick={() => setSelectedNode('prod-db-01')}
+                  onClick={() => handleSelectNode('prod-db-01')}
                 >
                   <rect width="130" height="40" rx="4" fill="#091824" stroke={selectedNode === 'prod-db-01' ? '#10B981' : '#1E293B'} strokeWidth="1.5" />
                   <circle cx="15" cy="20" r="4" fill="#10B981" className="animate-pulse" />
@@ -203,7 +247,7 @@ export const CyberThreatHUD: React.FC = () => {
                 <g 
                   transform="translate(580, 170)" 
                   className="cursor-pointer"
-                  onClick={() => setSelectedNode('api-gateway-01')}
+                  onClick={() => handleSelectNode('api-gateway-01')}
                 >
                   <rect width="130" height="40" rx="4" fill="#0B1528" stroke={selectedNode === 'api-gateway-01' ? '#22D3EE' : '#1E293B'} strokeWidth="1.5" />
                   <circle cx="15" cy="20" r="4" fill="#38BDF8" />
@@ -217,9 +261,12 @@ export const CyberThreatHUD: React.FC = () => {
           {/* Asset Telemetry Sidebar (1 Column) */}
           <div className="bg-slate-950/80 rounded-lg border border-slate-800/80 p-3 font-mono flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2 text-xs text-cyan-400 font-bold mb-3 pb-2 border-b border-slate-800">
-                <Cpu className="w-4 h-4" />
-                ASSET TELEMETRY
+              <div className="flex items-center justify-between text-xs text-cyan-400 font-bold mb-3 pb-2 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <Cpu className="w-4 h-4" />
+                  ASSET TELEMETRY
+                </div>
+                <span className="text-[10px] text-emerald-400">ONLINE</span>
               </div>
               <div className="space-y-2 text-xs">
                 <div>
@@ -236,18 +283,40 @@ export const CyberThreatHUD: React.FC = () => {
                 </div>
                 <div>
                   <span className="text-slate-500">Defense Action:</span>
-                  <p className="text-yellow-400">VLAN Isolation Ready</p>
+                  <p className="text-yellow-400">{defenseStatus}</p>
                 </div>
                 <div>
                   <span className="text-slate-500">Ingested Packets:</span>
                   <p className="text-slate-200">1,489,204 / hr</p>
                 </div>
               </div>
+
+              {/* Interactive Tactical Countermeasure Buttons */}
+              <div className="mt-4 pt-3 border-t border-slate-800/80 space-y-2">
+                <button
+                  onClick={handleTriggerSweep}
+                  disabled={isSweeping}
+                  className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-500/50 text-cyan-300 rounded text-[11px] font-bold transition disabled:opacity-50 shadow-[0_0_10px_rgba(6,182,212,0.15)]"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isSweeping ? 'animate-spin' : ''}`} />
+                  {isSweeping ? 'PROBING NETWORK...' : 'TRIGGER PERIMETER SWEEP'}
+                </button>
+                <button
+                  onClick={handleIsolateSelected}
+                  className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-red-950/60 hover:bg-red-900/70 border border-red-500/50 text-red-300 rounded text-[11px] font-bold transition shadow-[0_0_10px_rgba(239,68,68,0.15)]"
+                >
+                  <Lock className="w-3.5 h-3.5" />
+                  QUARANTINE {selectedNode?.split('-')[0].toUpperCase()}
+                </button>
+              </div>
             </div>
 
-            <div className="mt-3 pt-2 border-t border-slate-800 text-[10px] text-slate-400">
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse" />
-              Real-time heuristic link active
+            <div className="mt-3 pt-2 border-t border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
+              <span className="flex items-center">
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse" />
+                Real-time heuristic link active
+              </span>
+              <span className="text-cyan-400">LATENCY 4ms</span>
             </div>
           </div>
         </div>

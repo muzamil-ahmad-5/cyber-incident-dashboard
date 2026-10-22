@@ -9,12 +9,15 @@ from app.core.security import hash_password
 from app.models.user import User
 from app.models.incident import Incident
 from app.models.audit_log import AuditLog
+from app.models.ml_classification import MLClassificationRecord
 from app.api.auth import router as auth_router
 from app.api.incidents import router as incidents_router
 from app.api.analytics import router as analytics_router
 from app.api.reports import router as reports_router
 from app.api.audit import router as audit_router
 from app.api.system import router as system_router
+from app.api.ml_classifier import router as ml_classifier_router
+from app.api.llm_solutions import router as llm_solutions_router
 
 def init_db():
     """Create database tables and bootstrap initial admin user if not present."""
@@ -81,6 +84,8 @@ app.include_router(analytics_router, prefix="/api")
 app.include_router(reports_router, prefix="/api")
 app.include_router(audit_router, prefix="/api")
 app.include_router(system_router, prefix="/api")
+app.include_router(ml_classifier_router, prefix="/api")
+app.include_router(llm_solutions_router, prefix="/api")
 
 @app.get("/")
 def root():

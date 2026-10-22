@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { LucideIcon } from 'lucide-react';
+import { cyberAudio } from '../services/cyberAudio';
 
 interface Props {
   title: string;
@@ -58,6 +59,13 @@ export const StatCard: React.FC<Props> = ({
 }) => {
   const animatedVal = useAnimatedCount(value);
 
+  const handleClick = () => {
+    if (onClick) {
+      cyberAudio.playClick();
+      onClick();
+    }
+  };
+
   const variantStyles = {
     cyan: {
       card: 'border-cyan-500/25 hover:border-cyan-500/60 hover:shadow-cyan-500/10',
@@ -105,8 +113,8 @@ export const StatCard: React.FC<Props> = ({
 
   return (
     <div
-      onClick={onClick}
-      className={`bg-[#0F172A]/90 backdrop-blur-sm rounded-2xl p-5 border shadow-xl transition-all duration-300 ${
+      onClick={handleClick}
+      className={`bg-[#0F172A]/90 backdrop-blur-sm rounded-2xl p-5 border shadow-xl transition-all duration-300 cyber-reticle ${
         style.card
       } ${onClick ? 'cursor-pointer hover:-translate-y-1' : ''}`}
     >

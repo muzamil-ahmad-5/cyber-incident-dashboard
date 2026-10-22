@@ -12,13 +12,19 @@ import {
   ExternalLink,
   X,
   Server,
-  Filter
+  Filter,
+  Terminal
 } from 'lucide-react';
 import { useAuth } from '../services/authContext';
 import { api } from '../services/api';
 import { Incident } from '../types/incident';
+import { cyberAudio } from '../services/cyberAudio';
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  onOpenTerminal?: () => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ onOpenTerminal }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, switchDemoRole, logout, isLoading: authLoading } = useAuth();
@@ -166,10 +172,28 @@ export const Navbar: React.FC = () => {
           )}
         </div>
 
+        {/* Tactical CLI Button */}
+        {onOpenTerminal && (
+          <button
+            onClick={() => {
+              onOpenTerminal();
+              cyberAudio.playClick();
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-500/50 text-cyan-400 hover:text-cyan-300 font-mono text-xs transition shadow-[0_0_12px_rgba(6,182,212,0.2)]"
+            title="Open Tactical Command Terminal (Ctrl+K)"
+          >
+            <Terminal className="w-3.5 h-3.5 animate-pulse" />
+            <span className="hidden sm:inline font-bold">CLI</span>
+          </button>
+        )}
+
         {/* Real Application Alerts Notification Indicator */}
         <div className="relative" ref={notificationRef}>
           <button
-            onClick={() => setNotificationsOpen(!notificationsOpen)}
+            onClick={() => {
+              setNotificationsOpen(!notificationsOpen);
+              cyberAudio.playClick();
+            }}
             className="relative p-2 rounded-lg bg-slate-850 hover:bg-slate-800 border border-slate-750 text-slate-300 hover:text-white transition-colors"
             title="Real Critical Alerts"
             aria-label="View critical alerts"

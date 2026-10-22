@@ -279,3 +279,53 @@
   text-shadow: 0 0 10px rgba(239, 68, 68, 0.7), 0 0 20px rgba(239, 68, 68, 0.3);
 }
 
+.text-glow-purple {
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.7), 0 0 20px rgba(168, 85, 247, 0.3);
+}
+
+/* Cyber Tactical Reticle Corners */
+.cyber-reticle {
+  position: relative;
+}
+.cyber-reticle::before,
+.cyber-reticle::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  pointer-events: none;
+}
+.cyber-reticle::before {
+  top: 0;
+  left: 0;
+  border-top: 2px solid #06B6D4;
+  border-left: 2px solid #06B6D4;
+}
+.cyber-reticle::after {
+  bottom: 0;
+  right: 0;
+  border-bottom: 2px solid #06B6D4;
+  border-right: 2px solid #06B6D4;
+}
+
+/* Pulsing Cyber Neon Glow Animation */
+@keyframes cyberNeonGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.25), inset 0 0 15px rgba(6, 182, 212, 0.05);
+    border-color: rgba(6, 182, 212, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.45), inset 0 0 20px rgba(6, 182, 212, 0.1);
+    border-color: rgba(6, 182, 212, 0.8);
+  }
+}
+
+.animate-cyber-glow {
+  animation: cyberNeonGlow 3s ease-in-out infinite;
+}
+
+/* Cyber Terminal Cursor Blinking */
+.cursor-blink {
+  animation: terminalBlink 1s infinite;
+}
+

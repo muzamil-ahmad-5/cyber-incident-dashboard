@@ -187,3 +187,42 @@ def test_audit_logging(client):
     # Check that an action exists
     actions = [item["action"] for item in audit_data["items"]]
     assert any("INCIDENT_CREATE" in a or "STATUS_CHANGE" in a for a in actions)
+
+def test_llm_solution_generation(client):
+    create_res = client.post("/api/incidents", json={
+        "category": "Malware Alert",
+        "severity": "Critical",
+        "description": "Gh0stRat trojan executable payload detected on prod-auth-vault-01",
+        "affected_asset": "prod-auth-vault-01",
+        "potential_impact": "Critical"
+    })
+    inc_id = create_res.json()["incident_id"]
+
+    sol_res = client.post(f"/api/solutions/incident/{inc_id}", json={"model_provider": "auto"})
+    assert sol_res.status_code == 200
+    sol_data = sol_res.json()
+    assert sol_data["incident_id"] == inc_id
+    assert "solution_protocol" in sol_data
+    assert len(sol_data["solution_protocol"]["phase_1_containment"]) >= 1
+    assert "dataset_grounded_solution" in sol_data
+    assert "detection_summary" in sol_data
+
+def test_apply_ai_solution(client):
+    create_res = client.post("/api/incidents", json={
+        "category": "Brute-Force Attempt",
+        "severity": "High",
+        "description": "Credential stuffing flood against gateway",
+        "affected_asset": "auth-gateway-01",
+        "potential_impact": "High"
+    })
+    inc_id = create_res.json()["incident_id"]
+
+    apply_res = client.post(f"/api/solutions/incident/{inc_id}/apply", json={
+        "solution_markdown": "Applied rate-limiting and blocked source IP subnet.",
+        "analyst_name": "Senior SOC Analyst",
+        "mark_contained": True
+    })
+    assert apply_res.status_code == 200
+    updated = apply_res.json()
+    assert updated["status"] == "Contained"
+    assert "AI DEFENSIVE SOLUTION APPLIED" in updated["investigation_notes"]
