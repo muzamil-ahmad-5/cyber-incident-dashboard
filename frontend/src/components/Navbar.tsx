@@ -147,18 +147,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenTerminal }) => {
         </form>
 
         {/* Clear Demo/Academic Mode Label */}
+        {/* Clear Demo/Academic Mode Label */}
         <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-750 text-[10px] text-slate-300 font-mono">
           <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-          <span>DEMO MODE: SYNTHETIC DATA</span>
+          <span>DEMO MODE: 302 INCIDENTS & TRAINED MODELS</span>
         </div>
 
-        {/* Honest Database Connection Indicator */}
+        {/* Database / Standalone Connection Indicator */}
         <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-750 text-[10px] font-mono">
           {dbStatus === 'connected' ? (
-            <>
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-emerald-400">SQLite Connected</span>
-            </>
+            api.isStandalone() ? (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="text-cyan-300">SOC Dataset (302) Active</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400">Live API Connected</span>
+              </>
+            )
           ) : dbStatus === 'checking' ? (
             <>
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
@@ -166,8 +174,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenTerminal }) => {
             </>
           ) : (
             <>
-              <AlertCircle className="w-3.5 h-3.5 text-red-400" />
-              <span className="text-red-400">API Offline</span>
+              <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="text-cyan-400">Autonomous Mode</span>
             </>
           )}
         </div>

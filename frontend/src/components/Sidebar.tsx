@@ -27,7 +27,7 @@ export const Sidebar: React.FC<Props> = ({ isCollapsed = false, onToggleCollapse
   const navItems = [
     { name: 'Overview', to: '/', icon: LayoutDashboard },
     { name: 'Security Incidents', to: '/incidents', icon: ShieldAlert },
-    { name: 'AI Text Classifier', to: '/ai-classifier', icon: BrainCircuit },
+    { name: 'AI Models & Datasets', to: '/ai-classifier', icon: BrainCircuit },
     { name: 'Incident Analytics', to: '/analytics', icon: LineChart },
     { name: 'Risk Prioritization', to: '/risk-prioritization', icon: Calculator },
     { name: 'Investigation Center', to: '/investigation', icon: SearchCode },
