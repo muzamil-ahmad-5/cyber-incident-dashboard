@@ -2,12 +2,12 @@
 
 An Academic Security Operations Center (SOC) Incident Monitoring, Risk Prioritization, and AI Entity Investigation Platform.
 
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI_0.110+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/Frontend-React_19_TypeScript-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind_CSS_v4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Streamlit](https://img.shields.io/badge/Hosted-Streamlit_Community_Cloud-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Python](https://img.shields.io/badge/Python-3.11_--_3.14-3776AB?logo=python&logoColor=white)](https://python.org/)
+[![Plotly](https://img.shields.io/badge/Visualizations-Plotly_Interactive-3F4F75?logo=plotly&logoColor=white)](https://plotly.com/)
 [![SQLite](https://img.shields.io/badge/Database-SQLite_302_Incidents-003B57?logo=sqlite&logoColor=white)](https://sqlite.org/)
 [![Scikit-Learn](https://img.shields.io/badge/ML-TF--IDF_+_LinearSVC-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
-[![Tests](https://img.shields.io/badge/Tests-16%2F16_Passed-success)](https://docs.pytest.org/)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI_Included-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 
 ---
 
@@ -367,50 +367,48 @@ The system includes pre-configured role-based credentials:
 
 ## 6. Quick Start & Execution Guide
 
-### Local Development (Windows PowerShell)
+### Local Launch (One-Click)
 
-#### Step 1: Start Backend (FastAPI)
-```powershell
-# Navigate to backend directory
-cd backend
-
-# Create & activate virtual environment
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Launch FastAPI server
-uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+#### Option A: Windows Batch Launcher (Easiest)
+Double-click `run_streamlit.bat` in the project root:
+```cmd
+run_streamlit.bat
 ```
-* API Documentation: `http://127.0.0.1:8000/docs`
 
-#### Step 2: Start Frontend (React 19 + Vite)
-In a second PowerShell window:
+#### Option B: Terminal Command
 ```powershell
-cd frontend
-npm install
-npm run dev
+# Run using Python Streamlit
+py -m streamlit run streamlit_app.py
 ```
-* Web Dashboard: `http://localhost:5173`
+Open your browser to `http://localhost:8501`.
 
 ---
 
-### Vercel Deployment Instructions
-1. Push repository to GitHub:
+## 7. How to Deploy to Streamlit Community Cloud (Free Public Hosting)
+
+You can host this entire interactive SOC platform online for free in under 2 minutes:
+
+1. **Push your repository to GitHub**:
    ```bash
    git add .
-   git commit -m "Deploy authentic SOC dashboard with complete dataset documentation"
+   git commit -m "Deploy CyberGuard SOC Sentinel on Streamlit"
    git push origin main
    ```
-2. Log into [Vercel](https://vercel.com) and import the repository.
-3. Set **Framework Preset** to `Vite` and **Root Directory** to `frontend` (or leave default root).
-4. Click **Deploy**. The application builds and deploys autonomously in ~1 minute.
+2. **Open Streamlit Community Cloud**:
+   - Go to [share.streamlit.io](https://share.streamlit.io) and sign in with your GitHub account.
+3. **Create New App**:
+   - Click **"New app"** (or **"Create app"**).
+   - Fill in the repository settings:
+     * **Repository**: `muzamil-ahmad-5/cyber-incident-dashboard`
+     * **Branch**: `main`
+     * **Main file path**: `streamlit_app.py`
+4. **Deploy**:
+   - Click **"Deploy!"**.
+   - Streamlit Cloud automatically installs `requirements.txt` and serves the dashboard with a public HTTPS URL (e.g., `https://cyber-incident-dashboard.streamlit.app`).
 
 ---
 
-## 7. Automated Verification & Test Execution
+## 8. Automated Verification & Test Execution
 
 ### Backend Pytest Suite (16 Automated Tests)
 ```powershell
@@ -439,12 +437,11 @@ tests/test_ml_classifier.py::test_samples_endpoint PASSED                [100%]
 ======================== 16 passed in 6.98s ========================
 ```
 
-### Frontend TypeScript Verification
+### Streamlit Application Verification
 ```powershell
-cd frontend
-npm run build
+py -m py_compile streamlit_app.py
 ```
-* Output: `✓ built in 975ms` with zero errors.
+* Output: Clean compilation with zero syntax or import errors.
 
 ---
 
