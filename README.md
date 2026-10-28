@@ -367,44 +367,64 @@ The system includes pre-configured role-based credentials:
 
 ## 6. Quick Start & Execution Guide
 
-### Local Launch (One-Click)
+### Local Launch
 
-#### Option A: Windows Batch Launcher (Easiest)
-Double-click `run_streamlit.bat` in the project root:
-```cmd
-run_streamlit.bat
-```
-
-#### Option B: Terminal Command
+#### Option A: Futuristic Cyber SOC Frontend (Recommended)
 ```powershell
-# Run using Python Streamlit
+cd frontend
+npm install
+npm run dev
+```
+Open your browser to `http://localhost:5173` for the full futuristic Cyber Command Center with interactive 3D perspective cyber grid, sonar radar HUD, audio synthesizer, and tactical CLI.
+
+#### Option B: Streamlit Python App
+Double-click `run_streamlit.bat` or run:
+```powershell
 py -m streamlit run streamlit_app.py
 ```
 Open your browser to `http://localhost:8501`.
 
 ---
 
-## 7. How to Deploy to Streamlit Community Cloud (Free Public Hosting)
+## 7. How to Deploy to Vercel (Recommended - Cyber SOC Frontend)
 
-You can host this entire interactive SOC platform online for free in under 2 minutes:
+The application includes zero-configuration deployment files (`vercel.json` and `frontend/vercel.json`) that allow you to deploy the futuristic Cyber SOC interface to Vercel for free in under 1 minute:
 
-1. **Push your repository to GitHub**:
-   ```bash
-   git add .
-   git commit -m "Deploy CyberGuard SOC Sentinel on Streamlit"
-   git push origin main
-   ```
-2. **Open Streamlit Community Cloud**:
-   - Go to [share.streamlit.io](https://share.streamlit.io) and sign in with your GitHub account.
-3. **Create New App**:
-   - Click **"New app"** (or **"Create app"**).
-   - Fill in the repository settings:
-     * **Repository**: `muzamil-ahmad-5/cyber-incident-dashboard`
-     * **Branch**: `main`
-     * **Main file path**: `streamlit_app.py`
-4. **Deploy**:
-   - Click **"Deploy!"**.
-   - Streamlit Cloud automatically installs `requirements.txt` and serves the dashboard with a public HTTPS URL (e.g., `https://cyber-incident-dashboard.streamlit.app`).
+### Step 1: Push Code to GitHub
+```bash
+git add .
+git commit -m "Deploy CyberGuard SOC Frontend to Vercel"
+git push origin main
+```
+
+### Step 2: Import into Vercel
+1. Navigate to [vercel.com](https://vercel.com) and log in with your GitHub account.
+2. Click **"Add New..."** $\rightarrow$ **"Project"**.
+3. Select your repository: `muzamil-ahmad-5/cyber-incident-dashboard` (or `security-incident-dashboard`).
+4. **Build & Output Settings**:
+   - The included root `vercel.json` automatically detects the build command:
+     * **Build Command**: `cd frontend && npm install && npm run build`
+     * **Output Directory**: `frontend/dist`
+   - *(Optional)*: If you prefer, set **Root Directory** to `frontend` in Project Settings (both work seamlessly).
+5. Click **"Deploy"**.
+6. In ~45 seconds, your live production Cyber SOC URL will be ready (e.g., `https://cyber-incident-dashboard.vercel.app`)!
+
+> [!TIP]
+> **Zero-Crash Standalone SOC Engine**: When deployed on Vercel without an active Python server, the frontend automatically activates the Standalone SOC Engine. It operates seamlessly in-browser with all **302 authentic incidents from SQLite**, all **391 records from `cybersecurity_entities.csv`**, deterministic risk scoring ($0–100$), and localStorage persistence without throwing `<doctype html>` JSON parse errors!
+
+---
+
+## 7.1 Alternative Deployment: Streamlit Community Cloud
+
+If you wish to host the pure Python Streamlit interface:
+
+1. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
+2. Click **"New app"**.
+3. Fill in settings:
+   - **Repository**: `muzamil-ahmad-5/cyber-incident-dashboard`
+   - **Branch**: `main`
+   - **Main file path**: `streamlit_app.py`
+4. Click **"Deploy!"**. Streamlit Cloud installs `requirements.txt` and serves the app.
 
 ---
 
