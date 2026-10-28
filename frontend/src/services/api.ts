@@ -314,4 +314,8 @@ export const api = {
   getCICIDSMetrics: async () => {
     return demoDataService.getCICIDSMetrics();
   },
+
+  getActualTrainedDataset: async () => {
+    return demoDataService.getActualTrainedDataset();
+  },
 };

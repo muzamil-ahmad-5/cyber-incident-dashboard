@@ -1,6 +1,7 @@
 import preloadedData from '../data/preloaded_data.json';
 import cybersecurityMetrics from '../data/cybersecurity_metrics.json';
 import cicids2017Metrics from '../data/cicids2017_metrics.json';
+import actualTrainedDataset from '../data/actual_trained_dataset.json';
 import {
   Incident,
   PaginatedIncidents,
@@ -923,11 +924,25 @@ class DemoDataService {
     const clean = text.trim();
     const lower = clean.toLowerCase();
 
-    // In-browser keyword entity inference matching the 14 trained classes
+    // Check if the input directly matches any record from the authentic trained dataset (cybersecurity_entities.csv)
+    const exactMatch = (actualTrainedDataset as any[]).find(
+      (r: any) =>
+        clean.toLowerCase() === r.text.toLowerCase() ||
+        clean.toLowerCase().includes(r.text.toLowerCase().slice(0, 50)) ||
+        r.text.toLowerCase().includes(clean.toLowerCase().slice(0, 50))
+    );
+
     let predicted = 'malware';
     let confidence = 0.86;
+    let matchedSolutions = '';
+    let matchedDiagnosis = '';
 
-    if (/\b(cve-\d{4}-\d+|vulnerabilit|buffer overflow|rce|remote code execution|zero-day|xss|sqli|injection)\b/.test(lower)) {
+    if (exactMatch) {
+      predicted = exactMatch.label;
+      confidence = 0.96;
+      matchedSolutions = exactMatch.solutions;
+      matchedDiagnosis = exactMatch.diagnosis;
+    } else if (/\b(cve-\d{4}-\d+|vulnerabilit|buffer overflow|rce|remote code execution|zero-day|xss|sqli|injection)\b/.test(lower)) {
       predicted = 'vulnerability';
       confidence = 0.94;
     } else if (/\b(apt\d+|apt\b|lazarus|reaper|group \d+|threat actor|adversary|equation group|fancy bear)\b/.test(lower)) {
@@ -967,14 +982,20 @@ class DemoDataService {
       predicted = 'time';
       confidence = 0.8;
     } else {
-      // Default to malware
       predicted = 'malware';
       confidence = 0.85;
     }
 
     const guidanceData = CURATED_PREVENTION_KNOWLEDGE_BASE[predicted] || CURATED_PREVENTION_KNOWLEDGE_BASE['malware'];
     const stepsFormatted = guidanceData.prevention_steps.map((s, idx) => `${idx + 1}. ${s}`).join('\n');
-    const fullGuidance = `**${guidanceData.title}**\n\n${guidanceData.description}\n\n### Immediate Containment & Investigation Steps:\n${stepsFormatted}\n\n### Hardening & Prevention Guidance:\n${guidanceData.hardening_recommendations}`;
+    let fullGuidance = `**${guidanceData.title}**\n\n${guidanceData.description}\n\n### Immediate Containment & Investigation Steps:\n${stepsFormatted}\n\n### Hardening & Prevention Guidance:\n${guidanceData.hardening_recommendations}`;
+
+    if (matchedSolutions || matchedDiagnosis) {
+      fullGuidance = `**${guidanceData.title}**\n\n` +
+        (matchedDiagnosis ? `**Dataset Diagnosis**: ${matchedDiagnosis}\n\n` : '') +
+        `### Defensive Solutions from Trained Dataset:\n${matchedSolutions || stepsFormatted}\n\n` +
+        `### Hardening & Prevention Guidance:\n${guidanceData.hardening_recommendations}`;
+    }
 
     const year = new Date().getFullYear();
     const recordId = `ML-${year}-${String(this.mlRecords.length + 1).padStart(4, '0')}`;
@@ -1075,6 +1096,10 @@ class DemoDataService {
 
   async getMLSamples(): Promise<MLSampleRecord[]> {
     return SAFE_SAMPLE_RECORDS;
+  }
+
+  getActualTrainedDataset(): any[] {
+    return actualTrainedDataset;
   }
 }
 

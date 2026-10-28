@@ -210,6 +210,12 @@ export const AIEntityClassifier: React.FC = () => {
   const [cicidsMetrics, setCicidsMetrics] = useState<any>(null);
   const [showMetricsModal, setShowMetricsModal] = useState(false);
 
+  // Authentic Trained Dataset (cybersecurity_entities.csv - 391 records)
+  const [authenticRecords, setAuthenticRecords] = useState<Array<{ id: number; text: string; label: string; diagnosis: string; solutions: string }>>([]);
+  const [selectedAuthenticId, setSelectedAuthenticId] = useState<string>('');
+  const [activeAuthenticRecord, setActiveAuthenticRecord] = useState<{ id: number; text: string; label: string; diagnosis: string; solutions: string } | null>(null);
+  const [authenticCategoryFilter, setAuthenticCategoryFilter] = useState<string>('All');
+
   // Flow telemetry sandbox state
   const [selectedFlowPreset, setSelectedFlowPreset] = useState<string>('ddos');
   const [flowAnalysisResult, setFlowAnalysisResult] = useState<any>(null);
@@ -222,11 +228,14 @@ export const AIEntityClassifier: React.FC = () => {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
 
-  // Load samples and metrics on mount
+  // Load samples, authentic dataset, and metrics on mount
   useEffect(() => {
     loadSamples();
     loadMetrics();
     api.getCICIDSMetrics().then(setCicidsMetrics).catch(console.error);
+    api.getActualTrainedDataset().then((data) => {
+      setAuthenticRecords(data || []);
+    }).catch(console.error);
   }, []);
 
   // Reload records when filters or page changes
@@ -303,6 +312,21 @@ export const AIEntityClassifier: React.FC = () => {
     setInputText(sample.text);
     setAnalystNotes(`Context: ${sample.context}`);
     setClassificationError(null);
+    setActiveAuthenticRecord(null);
+    setSelectedAuthenticId('');
+  };
+
+  const handleSelectAuthenticRecord = (idStr: string) => {
+    setSelectedAuthenticId(idStr);
+    const rec = authenticRecords.find((r) => String(r.id) === idStr);
+    if (rec) {
+      setActiveAuthenticRecord(rec);
+      setInputText(rec.text);
+      setAnalystNotes(`Authentic dataset record #${rec.id} (Ground-truth: ${rec.label})`);
+      setClassificationError(null);
+    } else {
+      setActiveAuthenticRecord(null);
+    }
   };
 
   const handleUpdateRecordStatus = async () => {
@@ -486,24 +510,104 @@ export const AIEntityClassifier: React.FC = () => {
               </span>
             </div>
 
-            {/* Quick Safe Samples Pills */}
-            <div className="mb-4">
-              <div className="text-[11px] font-semibold text-slate-400 mb-2 flex items-center gap-1.5">
-                <Database className="w-3.5 h-3.5 text-cyan-400" />
-                Load Verified Sample Records:
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {samples.map((s, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleApplySample(s)}
-                    className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-cyan-500/40 transition flex items-center gap-1"
+            {/* Authentic Trained Dataset Browser (cybersecurity_entities.csv - 391 Records) */}
+            <div className="mb-4 p-3.5 rounded-xl bg-slate-900/80 border border-cyan-500/30 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
+                  <Database className="w-4 h-4 text-cyan-400" />
+                  Select Authentic Trained Dataset Record (391 Real Records)
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-slate-400">Filter:</span>
+                  <select
+                    value={authenticCategoryFilter}
+                    onChange={(e) => {
+                      setAuthenticCategoryFilter(e.target.value);
+                      setSelectedAuthenticId('');
+                      setActiveAuthenticRecord(null);
+                    }}
+                    className="bg-[#070B14] border border-slate-700 rounded-md px-2 py-0.5 text-[11px] text-cyan-300 focus:outline-none focus:border-cyan-500/50"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                    {s.label}
-                  </button>
-                ))}
+                    <option value="All">All Categories (391)</option>
+                    <option value="threat-actor">threat-actor</option>
+                    <option value="malware">malware</option>
+                    <option value="vulnerability">vulnerability</option>
+                    <option value="attack-pattern">attack-pattern</option>
+                    <option value="tools">tools</option>
+                    <option value="software">software</option>
+                    <option value="infrastucture">infrastucture</option>
+                    <option value="url">url</option>
+                    <option value="hash">hash</option>
+                    <option value="identity">identity</option>
+                    <option value="filepath">filepath</option>
+                    <option value="location">location</option>
+                    <option value="campaign">campaign</option>
+                    <option value="time">time</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Dropdown list of actual records */}
+              <div>
+                <select
+                  value={selectedAuthenticId}
+                  onChange={(e) => handleSelectAuthenticRecord(e.target.value)}
+                  className="w-full bg-[#070B14] border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 font-mono truncate"
+                >
+                  <option value="">-- Choose a record from cybersecurity_entities.csv (391 unique rows) --</option>
+                  {authenticRecords
+                    .filter((r) => authenticCategoryFilter === 'All' || r.label === authenticCategoryFilter)
+                    .map((r) => (
+                      <option key={r.id} value={r.id}>
+                        [ID #{r.id}] [{r.label}] {r.text.slice(0, 80)}...
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {/* If an authentic record is selected, show its authentic ground-truth diagnosis and solutions */}
+              {activeAuthenticRecord && (
+                <div className="p-3 rounded-lg bg-[#070B14] border border-cyan-500/40 text-xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-cyan-300 flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                      Authentic Dataset Ground Truth (ID #{activeAuthenticRecord.id})
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase">
+                      {activeAuthenticRecord.label}
+                    </span>
+                  </div>
+                  {activeAuthenticRecord.diagnosis && (
+                    <div className="text-[11px] text-slate-300">
+                      <strong className="text-amber-300">Ground-Truth Diagnosis:</strong> {activeAuthenticRecord.diagnosis}
+                    </div>
+                  )}
+                  {activeAuthenticRecord.solutions && (
+                    <div className="text-[11px] text-slate-300">
+                      <strong className="text-emerald-300">Ground-Truth Defensive Solutions:</strong> {activeAuthenticRecord.solutions}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Quick Sample Presets */}
+              <div className="pt-1 border-t border-slate-800/80">
+                <div className="text-[10px] font-semibold text-slate-400 mb-1.5 flex items-center gap-1">
+                  <span>Quick-Load Verified Presets:</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {samples.map((s, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleApplySample(s)}
+                      className="text-[10px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60 hover:border-cyan-500/40 transition flex items-center gap-1"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -613,6 +717,36 @@ export const AIEntityClassifier: React.FC = () => {
                   </span>
                 </div>
               </div>
+
+              {/* Ground Truth vs ML Prediction Comparative Banner */}
+              {activeAuthenticRecord && (
+                <div className="p-3 rounded-xl bg-slate-900 border border-slate-700/80 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="text-slate-400 font-semibold block text-[10px]">AUTHENTIC DATASET GROUND TRUTH:</span>
+                    <span className="font-mono font-bold text-amber-400 uppercase">
+                      {activeAuthenticRecord.label}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-slate-400 font-semibold block text-[10px]">MODEL PREDICTION:</span>
+                    <span className="font-mono font-bold text-cyan-400 uppercase">
+                      {activeRecord.predicted_category}
+                    </span>
+                  </div>
+                  <div className="text-right pl-3">
+                    <span className="text-slate-400 font-semibold block text-[10px]">ALIGNMENT:</span>
+                    {activeAuthenticRecord.label === activeRecord.predicted_category ? (
+                      <span className="text-emerald-400 font-bold flex items-center gap-1 text-[11px]">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> EXACT MATCH
+                      </span>
+                    ) : (
+                      <span className="text-amber-400 font-bold flex items-center gap-1 text-[11px]">
+                        <Info className="w-3.5 h-3.5" /> CROSS-CATEGORY
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Submitted Text Snippet */}
               <div className="p-3 rounded-xl bg-[#070B14] border border-slate-800/80 text-xs text-slate-300 font-mono leading-relaxed max-h-24 overflow-y-auto">
