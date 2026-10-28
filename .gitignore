@@ -1,2 +1,35 @@
-# Created by pytest automatically.
-*
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Pytest cache
+.pytest_cache/
+lastfailed
+nodeids
+CACHEDIR.TAG
+
+# Node & Frontend dependencies / build
+node_modules/
+frontend/dist/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Large binaries & tunnels
+*.exe
+cloudflared.exe
+
+# Local environment variables
+.env
+.env.local
+
+# IDE configurations
+.vscode/
+.idea/
